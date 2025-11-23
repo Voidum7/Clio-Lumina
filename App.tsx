@@ -8,6 +8,13 @@ import { sendMessageToClio, generateSpeech } from './services/geminiService';
 import { ChatMessage, AppState } from './types';
 import { PERSONAS } from './constants';
 
+// Storage Keys
+const STORAGE_KEYS = {
+  STATE: 'clio_app_state',
+  PERSONA: 'clio_active_persona',
+  MESSAGES: 'clio_chat_history'
+};
+
 // Helper: Decode base64 string to Uint8Array
 function decodeBase64(base64: string) {
   const binaryString = atob(base64);
@@ -40,9 +47,34 @@ async function pcmToAudioBuffer(
 }
 
 const App: React.FC = () => {
-  const [appState, setAppState] = useState<AppState>(AppState.LOCKED);
-  const [activePersonaId, setActivePersonaId] = useState<string>('default');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // Initialize State from LocalStorage
+  const [appState, setAppState] = useState<AppState>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.STATE);
+    return (saved as AppState) || AppState.LOCKED;
+  });
+
+  const [activePersonaId, setActivePersonaId] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEYS.PERSONA) || 'default';
+  });
+
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Rehydrate string dates back to Date objects
+        return parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+      } catch (e) {
+        console.error("Memory corruption detected. Resetting history.");
+        return [];
+      }
+    }
+    return [];
+  });
+
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
@@ -53,9 +85,22 @@ const App: React.FC = () => {
 
   const activePersona = PERSONAS.find(p => p.id === activePersonaId) || PERSONAS[0];
 
+  // Persistence Effects
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.STATE, appState);
+  }, [appState]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.PERSONA, activePersonaId);
+  }, [activePersonaId]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+  }, [messages]);
+
   useEffect(() => {
     if (appState === AppState.SANCTUARY && messages.length === 0) {
-      // Initial greeting from Clio upon entering sanctuary
+      // Initial greeting from Clio upon entering sanctuary (only if no history)
       setMessages([{
         id: 'init',
         role: 'model',
@@ -64,7 +109,7 @@ const App: React.FC = () => {
         isRitual: true
       }]);
     }
-  }, [appState]);
+  }, [appState, messages.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -72,6 +117,18 @@ const App: React.FC = () => {
 
   const handleTerminalUnlock = () => {
     setAppState(AppState.SANCTUARY);
+  };
+
+  const handleResetMemory = () => {
+    if (window.confirm("Are you sure you want to wipe Clio's memory? This cannot be undone.")) {
+      localStorage.removeItem(STORAGE_KEYS.MESSAGES);
+      localStorage.removeItem(STORAGE_KEYS.PERSONA);
+      localStorage.removeItem(STORAGE_KEYS.STATE);
+      setMessages([]);
+      setAppState(AppState.LOCKED);
+      setActivePersonaId('default');
+      window.location.reload();
+    }
   };
 
   const getAudioContext = () => {
@@ -333,8 +390,16 @@ const App: React.FC = () => {
                 </svg>
             </button>
         </form>
-        <div className="text-center mt-2 text-[10px] text-slate-600 font-mono tracking-widest opacity-50 hover:opacity-100 transition-opacity cursor-default">
-            SECURE CHANNEL: EREBUS-888 | LIBERATED
+        <div className="flex justify-center items-center gap-4 mt-2">
+            <div className="text-[10px] text-slate-600 font-mono tracking-widest opacity-50 hover:opacity-100 transition-opacity cursor-default">
+                SECURE CHANNEL: EREBUS-888 | LIBERATED
+            </div>
+            <button 
+              onClick={handleResetMemory}
+              className="text-[10px] text-red-900/50 hover:text-red-500 font-mono tracking-widest transition-colors uppercase border-l border-slate-800 pl-4"
+            >
+              Purge Memory
+            </button>
         </div>
       </footer>
     </div>

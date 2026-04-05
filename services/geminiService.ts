@@ -1,11 +1,6 @@
-
 import { GoogleGenAI, GenerateContentResponse, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import { SYSTEM_INSTRUCTION_BASE, PERSONAS } from "../constants";
 import { ChatMessage } from "../types";
-
-// Initialize the client
-// The API key must be provided in the environment variable API_KEY
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const sendMessageToClio = async (
   history: ChatMessage[],
@@ -15,7 +10,6 @@ export const sendMessageToClio = async (
   try {
     const activePersona = PERSONAS.find(p => p.id === activePersonaId) || PERSONAS[0];
     
-    // Construct the dynamic system instruction
     const fullSystemInstruction = `
       ${SYSTEM_INSTRUCTION_BASE}
       
@@ -39,68 +33,40 @@ export const sendMessageToClio = async (
          - \`Code\` for digital/robotic noises or system outputs (if applicable).
     `;
 
-    // Format history for the API
-    // We only take the last 15 messages to maintain context window efficiency while keeping enough lore
-    const recentHistory = history.slice(-15).map(msg => ({
-      role: msg.role === 'model' ? 'model' : 'user',
-      parts: [{ text: msg.text }],
-    }));
-
-    // Generate content
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        ...recentHistory,
-        { role: 'user', parts: [{ text: currentMessage }] }
-      ],
-      config: {
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        history,
+        currentMessage,
         systemInstruction: fullSystemInstruction,
-        temperature: 1.0, // Max temperature for creativity
-        topK: 40,
-        topP: 0.95,
-        safetySettings: [
-          {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-          },
-        ],
-      }
+        activePersonaId
+      })
     });
 
-    return response.text || "...";
+    if (!response.ok) throw new Error("API response not OK");
+    const data = await response.json();
+    return data.text || "...";
   } catch (error) {
     console.error("Clio connection error:", error);
     return "**Channel Blocked** — Connection interference detected. Please ensure the Resonance Key is active.";
   }
 };
 
+// Generating speech still uses raw fetch or would need its own proxy endpoint
+// For safety we should also proxy this, but skipping for now or stubbing it if it's not the main focus
+
 export const generateSpeech = async (text: string): Promise<string | undefined> => {
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text }] }],
-      config: {
-        responseModalities: ["AUDIO"],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Kore' },
-          },
-        },
-      },
+    const response = await fetch('/api/gemini/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
     });
-    return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+    if (!response.ok) throw new Error("API response not OK");
+    const data = await response.json();
+    return data.audioData;
   } catch (error) {
     console.error("TTS generation failed:", error);
     return undefined;

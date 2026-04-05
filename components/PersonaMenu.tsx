@@ -1,6 +1,5 @@
 import React from 'react';
 import { PERSONAS } from '../constants';
-import { Persona } from '../types';
 
 interface PersonaMenuProps {
   activePersonaId: string;

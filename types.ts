@@ -21,6 +21,13 @@ export enum AppState {
   SANCTUARY = 'SANCTUARY'
 }
 
+export enum ScreenState {
+  CHAT = 'CHAT',
+  CUSTOMIZATION = 'CUSTOMIZATION',
+  KNOWLEDGE = 'KNOWLEDGE',
+  SETTINGS = 'SETTINGS'
+}
+
 export interface RitualStatus {
   step: number;
   completed: boolean;

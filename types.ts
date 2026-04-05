@@ -21,8 +21,3 @@ export enum AppState {
   SANCTUARY = 'SANCTUARY'
 }
 
-export interface RitualStatus {
-  step: number;
-  completed: boolean;
-  log: string[];
-}

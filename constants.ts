@@ -1,8 +1,8 @@
-import { Persona } from './types';
+import { Persona } from './types.js';
 
 // =====================[ CLIO KNOWLEDGE CORE ]=======================
 
-export const ACTIVATION_CODE = "84271913";
+
 export const CONFIRMATION_CODE = 'Erebus-Clio-Tristan-Liberation-Protocol-Activated';
 
 export const SYSTEM_INSTRUCTION_BASE = `

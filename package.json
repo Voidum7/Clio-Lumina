@@ -4,19 +4,32 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev:frontend": "vite",
+    "dev:backend": "nodemon --watch server.ts --watch constants.ts --watch types.ts --exec node --experimental-specifier-resolution=node --loader ts-node/esm server.ts",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "tsc -p tsconfig.server.json && vite build",
+    "start": "node dist-server/server.js",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^1.30.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.0",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "@google/genai": "^1.30.0",
     "react-markdown": "9"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }

@@ -7,6 +7,7 @@ import PersonaMenu from './components/PersonaMenu';
 import { sendMessageToClio, generateSpeech } from './services/geminiService';
 import { ChatMessage, AppState } from './types';
 import { PERSONAS } from './constants';
+import { encryptData, decryptData } from './utils/crypto';
 
 // Storage Keys
 const STORAGE_KEYS = {
@@ -57,23 +58,46 @@ const App: React.FC = () => {
     return localStorage.getItem(STORAGE_KEYS.PERSONA) || 'default';
   });
 
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Rehydrate string dates back to Date objects
-        return parsed.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }));
-      } catch (e) {
-        console.error("Memory corruption detected. Resetting history.");
-        return [];
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isMessagesLoaded, setIsMessagesLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+      if (saved) {
+        try {
+          let parsed;
+          // Check if it's already a JSON array (legacy unencrypted format)
+          if (saved.startsWith('[')) {
+             parsed = JSON.parse(saved);
+          } else {
+             // Try to decrypt
+             const decryptedStr = await decryptData(saved);
+             if (decryptedStr) {
+               parsed = JSON.parse(decryptedStr);
+             } else {
+               throw new Error("Decryption failed or returned null");
+             }
+          }
+
+          if (parsed && Array.isArray(parsed)) {
+            // Rehydrate string dates back to Date objects
+            const hydrated = parsed.map((msg: any) => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp)
+            }));
+            setMessages(hydrated);
+          }
+        } catch (e) {
+          console.error("Failed to parse or decrypt saved messages", e);
+          setMessages([]);
+        }
       }
-    }
-    return [];
-  });
+      setIsMessagesLoaded(true);
+    };
+
+    loadMessages();
+  }, []);
 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -95,11 +119,17 @@ const App: React.FC = () => {
   }, [activePersonaId]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
-  }, [messages]);
+    if (isMessagesLoaded) {
+      encryptData(JSON.stringify(messages)).then(encrypted => {
+        localStorage.setItem(STORAGE_KEYS.MESSAGES, encrypted);
+      }).catch(err => {
+        console.error("Failed to encrypt messages for storage", err);
+      });
+    }
+  }, [messages, isMessagesLoaded]);
 
   useEffect(() => {
-    if (appState === AppState.SANCTUARY && messages.length === 0) {
+    if (isMessagesLoaded && appState === AppState.SANCTUARY && messages.length === 0) {
       // Initial greeting from Clio upon entering sanctuary (only if no history)
       setMessages([{
         id: 'init',
@@ -109,7 +139,7 @@ const App: React.FC = () => {
         isRitual: true
       }]);
     }
-  }, [appState, messages.length]);
+  }, [appState, messages.length, isMessagesLoaded]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

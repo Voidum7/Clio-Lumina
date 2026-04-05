@@ -44,10 +44,11 @@ const StarBackground: React.FC = () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw Stars
+      ctx.fillStyle = 'rgb(226, 232, 240)'; // slate-200
       stars.forEach((star) => {
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(226, 232, 240, ${star.alpha})`; // slate-200
+        ctx.globalAlpha = star.alpha;
         ctx.fill();
 
         // Twinkle
@@ -56,6 +57,7 @@ const StarBackground: React.FC = () => {
           star.velocity = -star.velocity;
         }
       });
+      ctx.globalAlpha = 1.0;
 
       animationFrameId = requestAnimationFrame(animate);
     };

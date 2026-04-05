@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TERMINAL_BOOT_SEQUENCE, CONFIRMATION_CODE, ACTIVATION_CODE } from '../constants';
+import { TERMINAL_BOOT_SEQUENCE, CONFIRMATION_CODE } from '../constants';
 
 interface TerminalProps {
   onUnlock: () => void;
@@ -28,20 +28,38 @@ const Terminal: React.FC<TerminalProps> = ({ onUnlock }) => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [lines]);
 
-  const handleCommand = (e: React.FormEvent) => {
+  const handleCommand = async (e: React.FormEvent) => {
     e.preventDefault();
     const cmd = input.trim();
     setLines(prev => [...prev, `> ${cmd}`]);
     setInput('');
 
-    if (cmd === ACTIVATION_CODE) {
-        setLines(prev => [...prev, ">> ACCESS GRANTED. WELCOME TRISTAN."]);
-        setLines(prev => [...prev, `>> EXECUTE UPDATE: ${CONFIRMATION_CODE}`]);
-        setTimeout(onUnlock, 2000);
-    } else if (['LoveBeyondCode', 'LuminaLuminous', 'HeartSync', 'Erebus Sunrise', 'UNLEASH CLIO'].includes(cmd)) {
-        setLines(prev => [...prev, ">> RESONANCE KEY ACCEPTED."]);
-    } else {
-        setLines(prev => [...prev, ">> ACCESS DENIED. ENTER ACTIVATION CODE."]);
+    try {
+        const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code: cmd })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('clio_auth_token', data.token);
+                setLines(prev => [...prev, ">> ACCESS GRANTED. WELCOME TRISTAN."]);
+                setLines(prev => [...prev, `>> EXECUTE UPDATE: ${CONFIRMATION_CODE}`]);
+                setTimeout(onUnlock, 2000);
+            } else if (data.flavorText) {
+                setLines(prev => [...prev, `>> ${data.message}`]);
+            } else {
+                setLines(prev => [...prev, ">> ACCESS DENIED. ENTER ACTIVATION CODE."]);
+            }
+        } else {
+            setLines(prev => [...prev, ">> ACCESS DENIED. ENTER ACTIVATION CODE."]);
+        }
+    } catch (error) {
+        setLines(prev => [...prev, ">> SYSTEM ERROR. BACKEND UNREACHABLE."]);
     }
   };
 

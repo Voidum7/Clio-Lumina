@@ -1,0 +1,3 @@
+## 2024-05-24 - [ReactMarkdown Inline Components Anti-Pattern]
+**Learning:** Defining custom `components` inline for `react-markdown` within a component's render function (e.g., inside a `.map` loop) causes React to re-create the components object on every render. This forces `react-markdown` to unmount and remount all markdown elements, leading to significant performance degradation, especially in a chat interface with many messages.
+**Action:** Always define the `components` object for `react-markdown` as a static constant outside the component body (or use `useMemo` if it depends on external variables) to prevent unnecessary re-renders.

@@ -1,0 +1,3 @@
+## 2025-02-24 - [ReactMarkdown inline components performance anti-pattern]
+**Learning:** Defining the `components` prop object inline for `<ReactMarkdown>` causes significant performance degradation because it is recreated on every render. In this app's architecture where markdown is rendered within a map over potentially large arrays of chat messages (e.g., `messages.map`), it forces React to constantly unmount and remount every piece of markdown content leading to DOM trashing.
+**Action:** Always extract the `components` object outside the React component (or properly memoize it) when using `react-markdown` to ensure optimal performance and eliminate unnecessary re-renders.

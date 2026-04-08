@@ -5,7 +5,7 @@ import { ChatMessage } from "../types";
 
 // Initialize the client
 // The API key must be provided in the environment variable API_KEY
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY || "dummy_key" });
 
 export const sendMessageToClio = async (
   history: ChatMessage[],

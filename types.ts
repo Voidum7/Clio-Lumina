@@ -8,6 +8,8 @@ export interface Persona {
 }
 
 export interface ChatMessage {
+  mediaUrl?: string;
+  mediaType?: "image" | "audio";
   id: string;
   role: 'user' | 'model' | 'system';
   text: string;
@@ -16,6 +18,9 @@ export interface ChatMessage {
 }
 
 export enum AppState {
+  CUSTOMIZATION = "CUSTOMIZATION",
+  KNOWLEDGE = "KNOWLEDGE",
+  SETTINGS = "SETTINGS",
   LOCKED = 'LOCKED',
   TERMINAL = 'TERMINAL',
   SANCTUARY = 'SANCTUARY'

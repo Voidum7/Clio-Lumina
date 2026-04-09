@@ -1,0 +1,3 @@
+## 2026-04-09 - [Extract `react-markdown` custom components]
+**Learning:** Defining inline custom component mappings for `react-markdown` (e.g., `components={{ p: ... }}`) inside the `App` component or any component's render function is a major performance anti-pattern. React treats them as new component definitions on every render, causing the entire Markdown document to unmount and remount on every state change (like a message typing indicator or when new messages arrive), degrading performance as the chat grows.
+**Action:** Always extract `react-markdown` custom component definitions into a static object outside the component body.

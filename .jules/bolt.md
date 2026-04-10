@@ -1,0 +1,3 @@
+## 2026-04-10 - [ReactMarkdown Components Remounting]
+**Learning:** Defining custom components for `react-markdown` inline within a component's render function creates a new object reference on every render. This forces React to unmount and remount all markdown DOM nodes completely, destroying any local state and heavily tanking performance, especially for long chat history or large markdown blobs.
+**Action:** Always define `react-markdown` custom components statically outside the component body (e.g., as a `const markdownComponents = { ... }` file-level constant) or memoize them with `useMemo` if they require component scope/props, to ensure reference stability across renders.

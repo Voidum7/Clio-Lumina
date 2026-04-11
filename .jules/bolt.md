@@ -1,0 +1,3 @@
+## 2024-05-24 - [React-Markdown Static Components Optimization]
+**Learning:** Defining custom components dynamically inside a React render function for `react-markdown` causes those components to be unmounted and remounted on every re-render. In a chat application where the `App` component re-renders frequently (e.g., on every keystroke when `input` state changes), this leads to significant performance degradation and unnecessary DOM operations for all existing markdown nodes.
+**Action:** Always define custom components for `react-markdown` statically outside the component body (or memoize them with `useMemo`) to prevent unnecessary remounting and improve rendering performance.

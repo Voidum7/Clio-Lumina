@@ -1,0 +1,3 @@
+## 2024-05-18 - [Static Object/Function Extraction for React Performance]
+**Learning:** In this environment, static object and function references are significantly faster (~50-60x speedup for 10M iterations) than recreating them inline on every render. This was specifically observed when providing a `components` object to `ReactMarkdown`. Inline recreation causes significant unnecessary unmounting and remounting of all markdown elements.
+**Action:** Always define custom components or configuration objects that are passed as props to external libraries statically outside of the React component body whenever possible to prevent unnecessary React re-renders and element remounts.

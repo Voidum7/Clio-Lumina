@@ -1,0 +1,3 @@
+## 2024-04-17 - [Frontend - Prevent ReactMarkdown Remounting]
+**Learning:** Defining custom components inline for `ReactMarkdown` (e.g. `components={{ p: ... }}`) is a severe performance anti-pattern. Since the `components` object and its functions are recreated on every render, React interprets them as entirely new component types, forcing a full unmount and remount of all markdown nodes in the DOM. This is especially problematic in long lists like chat histories.
+**Action:** Always extract custom components for `react-markdown` to a static object outside the component body. This preserves reference identity across renders and allows React to reconcile the DOM efficiently.

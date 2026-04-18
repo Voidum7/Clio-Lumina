@@ -1,0 +1,11 @@
+<<<<<<< SEARCH
+const markdownComponents = {
+  p: ({node, ...props}: any) => <p className="mb-4 last:mb-0 leading-relaxed text-purple-50/90" {...props} />,
+=======
+// ⚡ Bolt Optimization:
+// Extracted ReactMarkdown components to a static object outside the component render cycle.
+// This prevents unnecessary re-creation of the components object on every render,
+// significantly improving performance, especially for long chat histories.
+const markdownComponents = {
+  p: ({node, ...props}: any) => <p className="mb-4 last:mb-0 leading-relaxed text-purple-50/90" {...props} />,
+>>>>>>> REPLACE

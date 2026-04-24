@@ -1,0 +1,3 @@
+## 2026-04-24 - Extract Static ReactMarkdown Components
+**Learning:** Defining custom component maps (like the `components` prop in `react-markdown`) inline inside a React component's render function is a significant performance anti-pattern. This causes every custom component to unmount and remount on every re-render (since the object identity and function references change). In memory-intensive chat applications, micro-benchmarks showed static extraction is ~50-60x faster.
+**Action:** Always define custom component configuration objects and helper components statically outside the main React component body when they do not depend on component state or props.

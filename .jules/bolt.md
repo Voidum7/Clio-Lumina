@@ -1,0 +1,3 @@
+## 2025-05-01 - [Extract static ReactMarkdown components]
+**Learning:** Defining custom `components` inline for `<ReactMarkdown>` in a functional component like `App` causes unnecessary unmounting and remounting on every render. This creates noticeable UI lags or extra operations, especially when re-rendering heavily dynamic state, due to recreation of reference objects for every single ReactMarkdown instance on screen. This project's benchmarks show a ~50-60x speed improvement by using static objects instead of inline recreation.
+**Action:** Always define `react-markdown` custom components statically outside the component body (e.g., `const markdownComponents: Components = { ... }`) and pass the reference.

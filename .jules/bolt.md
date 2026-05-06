@@ -1,0 +1,3 @@
+## 2024-05-06 - ReactMarkdown custom component memoization
+**Learning:** Defining `components` inline for `<ReactMarkdown>` in a functional component causes the component prop and its inner component definitions to be recreated on every render. Because the props change identity, ReactMarkdown forces an unmount and remount of all markdown sub-elements, severely degrading performance for chat UIs that have a growing history and frequent updates (like real-time typing).
+**Action:** Always extract static configuration objects and their child functional components, such as ReactMarkdown `components`, outside the React component body so they maintain referential equality across renders.

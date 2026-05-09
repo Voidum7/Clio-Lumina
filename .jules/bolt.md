@@ -1,0 +1,3 @@
+## 2024-05-09 - Extract ReactMarkdown static components
+**Learning:** Defining the `components` mapping inline for `<ReactMarkdown>` is a significant performance anti-pattern. This causes the custom component wrappers (like `p`, `h1`, `code`, etc.) to be recreated as new functions on every single render. React then treats them as entirely new component types and unnecessarily unmounts and remounts all markdown nodes instead of just updating them.
+**Action:** Always define static objects and custom component mappings outside the React component body. For `ReactMarkdown`, extract the `components` map into a static constant using the `Components` type from `react-markdown`.

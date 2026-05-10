@@ -1,0 +1,3 @@
+## 2026-05-10 - CanvasGradient Cache Optimization
+**Learning:** In Canvas animations, recreating expensive resources like `CanvasGradient` on every frame (`requestAnimationFrame`) is a performance anti-pattern. While micro-benchmarks show raw object creation isn't inherently slow, doing it inside a high-frequency animation loop (60fps) adds unnecessary overhead and garbage collection pressure.
+**Action:** When working with Canvas APIs, always create static or dimension-dependent resources (like gradients) once (e.g., during initialization or resize events) and cache them in a variable accessible by the animation loop. Apply this pattern to any `createLinearGradient`, `createRadialGradient`, or similar expensive canvas operations.

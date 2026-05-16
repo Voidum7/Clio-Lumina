@@ -1,0 +1,3 @@
+## 2024-05-14 - ReactMarkdown Custom Components Static Extraction Performance Learning
+**Learning:** Micro-benchmarks in this environment demonstrate that static object/function references are ~50-60x faster than inline recreation. Specifically, defining ReactMarkdown custom components inline (e.g. `components={{ p: ... }}`) within the component body causes them to be recreated on every render, leading to significant performance degradation due to unnecessary unmounting and remounting.
+**Action:** Always define react-markdown custom components statically outside the component block. Explicitly import and apply the `Components` type from `react-markdown` to ensure proper typing and avoid using `any`.

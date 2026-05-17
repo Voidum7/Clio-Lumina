@@ -1,0 +1,3 @@
+## 2024-05-17 - [Extract static Object definitions for React components]
+**Learning:** In this application, micro-benchmarks show that static object/function references are massive improvements over inline recreation (~50-60x faster). Specifically, defining `react-markdown` custom components statically outside the component block prevents significant performance anti-patterns (unnecessary unmounting and remounting on every render).
+**Action:** Always extract static configuration objects, such as `components` for `ReactMarkdown`, outside of component definitions and apply types like `Components` directly to ensure stability and performance.

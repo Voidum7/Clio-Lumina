@@ -1,0 +1,3 @@
+## 2024-05-24 - Static ReactMarkdown components to prevent unnecessary re-renders
+**Learning:** In a React application, declaring custom component overrides (like those used in `react-markdown`) inline inside a function component's render body is a major performance anti-pattern. Doing so recreates the components on every single render loop, causing them to unmount and remount unnecessarily, which can lead to significant React render delays (e.g., in micro-benchmarks this takes ~55ms vs ~14ms for static references).
+**Action:** Always define `react-markdown` custom components statically outside of the component block and explicitly type them using the `Components` type from `react-markdown`.

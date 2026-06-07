@@ -1,0 +1,3 @@
+## 2025-03-03 - [ReactMarkdown Rendering Optimization]
+**Learning:** In React implementations, passing inline object references like `components={{ ... }}` to libraries like `ReactMarkdown` causes unnecessary remounting of all internal custom components on every parent render. This is a significant performance anti-pattern. Static object/function references are substantially faster than inline recreation.
+**Action:** Always extract static props (like `ReactMarkdown`'s `components` configuration) to a constant variable defined outside the component block and type it appropriately using imported types (e.g., `Components` from `react-markdown`).

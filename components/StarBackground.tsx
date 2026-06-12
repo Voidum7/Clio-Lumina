@@ -12,10 +12,19 @@ const StarBackground: React.FC = () => {
 
     let animationFrameId: number;
     let stars: Array<{ x: number; y: number; radius: number; alpha: number; velocity: number }> = [];
+    let bgGradient: CanvasGradient | null = null;
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      // ⚡ Bolt Optimization: Cache CanvasGradient
+      // Why: Recreating gradient in requestAnimationFrame is expensive and causes GC pressure
+      // Impact: Reduces CPU usage by caching gradient that only needs to change on resize
+      bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGradient.addColorStop(0, '#020617'); // slate-950
+      bgGradient.addColorStop(1, '#1e1b4b'); // indigo-950
+
       initStars();
     };
 
@@ -36,12 +45,11 @@ const StarBackground: React.FC = () => {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Deep space gradient
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#020617'); // slate-950
-      gradient.addColorStop(1, '#1e1b4b'); // indigo-950
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Deep space gradient (uses cached bgGradient)
+      if (bgGradient) {
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
       // Draw Stars
       stars.forEach((star) => {

@@ -12,10 +12,17 @@ const StarBackground: React.FC = () => {
 
     let animationFrameId: number;
     let stars: Array<{ x: number; y: number; radius: number; alpha: number; velocity: number }> = [];
+    let cachedGradient: CanvasGradient | null = null;
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      // Cache deep space gradient to avoid recreating on every frame
+      cachedGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      cachedGradient.addColorStop(0, '#020617'); // slate-950
+      cachedGradient.addColorStop(1, '#1e1b4b'); // indigo-950
+
       initStars();
     };
 
@@ -37,11 +44,10 @@ const StarBackground: React.FC = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Deep space gradient
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#020617'); // slate-950
-      gradient.addColorStop(1, '#1e1b4b'); // indigo-950
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (cachedGradient) {
+        ctx.fillStyle = cachedGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
       // Draw Stars
       stars.forEach((star) => {

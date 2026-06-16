@@ -1,0 +1,3 @@
+## 2024-06-16 - Static ReactMarkdown Components
+**Learning:** Defining the `components` prop for `ReactMarkdown` inline inside a React component body causes the object reference to change on every render. This forces the internal elements to unmount and remount needlessly, significantly degrading performance, especially in components that re-render often (like chat applications receiving typed messages). Micro-benchmarks confirmed this anti-pattern.
+**Action:** Always extract static objects, like `ReactMarkdown`'s `components` prop, outside of the React component's body or use `useMemo` to ensure referential stability and avoid unnecessary unmounting/remounting of child elements.

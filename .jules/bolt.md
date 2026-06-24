@@ -1,0 +1,3 @@
+## 2024-06-25 - Cache CanvasGradient to prevent frame drops in background animation
+**Learning:** In React components managing HTML5 Canvas animations via `requestAnimationFrame` (like `StarBackground.tsx`), recreating `CanvasGradient` objects every frame causes significant and measurable overhead due to memory allocation and garbage collection.
+**Action:** Always create and cache expensive canvas resources (like `CanvasGradient`, `Pattern`, or offscreen canvases) outside the `animate` loop. Initialize them during the setup phase or inside a `resize` event handler if their dimensions depend on the canvas size, and simply reuse the cached reference on every frame.

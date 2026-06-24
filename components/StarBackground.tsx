@@ -12,10 +12,17 @@ const StarBackground: React.FC = () => {
 
     let animationFrameId: number;
     let stars: Array<{ x: number; y: number; radius: number; alpha: number; velocity: number }> = [];
+    let cachedGradient: CanvasGradient | null = null;
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      // Update the gradient when canvas resizes
+      cachedGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      cachedGradient.addColorStop(0, '#020617'); // slate-950
+      cachedGradient.addColorStop(1, '#1e1b4b'); // indigo-950
+
       initStars();
     };
 
@@ -37,10 +44,16 @@ const StarBackground: React.FC = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Deep space gradient
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#020617'); // slate-950
-      gradient.addColorStop(1, '#1e1b4b'); // indigo-950
-      ctx.fillStyle = gradient;
+      /*
+       * ⚡ Bolt Optimization
+       * Why: Creating a CanvasGradient is an expensive operation in 2D Canvas APIs. Doing it every frame (60fps) inside requestAnimationFrame causes unnecessary garbage collection and CPU overhead.
+       * Impact: Prevents recreation of the gradient object ~60 times per second, significantly reducing rendering overhead and frame drops during the starfield animation.
+       */
+      if (cachedGradient) {
+        ctx.fillStyle = cachedGradient;
+      } else {
+        ctx.fillStyle = '#020617'; // Fallback
+      }
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw Stars

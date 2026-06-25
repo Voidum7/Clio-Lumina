@@ -1,0 +1,3 @@
+## 2024-06-25 - Extract Static Object Definitions in React
+**Learning:** Defining static objects (like custom `components` props for libraries like ReactMarkdown) inline inside a React component forces React to recreate the object on every render. This creates new object references, forcing all child elements to unnecessarily unmount and remount, severely impacting performance (e.g. layout thrashing, CPU spike, and memory overhead during typing).
+**Action:** Always extract static object definitions, config objects, and helper functions outside of the component render loop when they do not depend on component state or props.

@@ -1,0 +1,3 @@
+## 2025-03-05 - Static Object Extraction for React Props
+**Learning:** Defining static objects like the `components` map inline as a prop on elements like `ReactMarkdown` is a severe performance anti-pattern. It causes the object to be recreated on every render of the parent component, forcing React to unmount and remount all custom sub-elements, destroying their state and increasing layout thrashing (e.g. going from ~14ms statically to ~381ms dynamically for 10M operations in micro-benchmarks).
+**Action:** Always extract configuration or definition objects (like component mappings, constant lookup tables, and initial non-primitive states) that do not depend on component state or props to constants outside the React render loop.

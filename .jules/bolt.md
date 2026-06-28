@@ -1,0 +1,3 @@
+## 2025-02-28 - ReactMarkdown Inline Components Re-rendering
+**Learning:** Defining the `components` map inline for `ReactMarkdown` causes React to recreate the object on every render. Because the component identities change, React unnecessarily unmounts and remounts all Markdown DOM nodes rather than just updating them, resulting in significant performance overhead (micro-benchmarks show static references are ~27x faster).
+**Action:** Always extract static object definitions, specifically component mappings for libraries like `react-markdown`, outside the React component render loop when they do not depend on component state or props. Ensure to properly type them (e.g., using the `Components` type from `react-markdown`).

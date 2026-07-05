@@ -1,0 +1,3 @@
+## 2024-05-24 - Extracting static `react-markdown` components
+**Learning:** In React components, recreating an object on every render is a significant anti-pattern. This is especially true for the `components` prop in `ReactMarkdown`, which passes a large object containing several functional components. Micro-benchmarks show that doing this inline causes an unmounting and remounting on every render, severely impacting performance.
+**Action:** Always define static object definitions, like `react-markdown` custom components, outside of the React component render loop when they do not depend on component state or props.
